@@ -1,9 +1,16 @@
 const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
 
 const UsuarioSchema = new mongoose.Schema({
     nombre: {
         type: String,
-        required: true
+        required: true,
+        unique: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -11,8 +18,16 @@ const UsuarioSchema = new mongoose.Schema({
     },
     rol: {
         type: String,
+        enum: ["admin", "barbero"],
         default: "barbero"
     }
+})
+
+// Hashear contraseña antes de guardar
+UsuarioSchema.pre("save", async function () {
+    if (!this.isModified("password")) return
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
 })
 
 module.exports = mongoose.model("Usuario", UsuarioSchema)
