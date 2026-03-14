@@ -13,7 +13,14 @@ const app = express()
 
 connectDB()
 
-app.use(cors())
+// Configuración CORS estricta y segura
+const corsOptions = {
+    origin: ["http://localhost:5173", "https://trucos-ii.vercel.app"], // Permite local y producción
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+    optionsSuccessStatus: 204
+}
+app.use(cors(corsOptions))
 app.use(express.json())
 
 // Middleware para ver qué peticiones llegan
