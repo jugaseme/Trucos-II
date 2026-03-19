@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import API, { crearVale, obtenerGananciasPeriodo } from "../services/api"
 import { useNavigate } from "react-router-dom"
+import AdComponent from "../components/AdComponent"
 import "./Dashboard.css"
 
 function Dashboard() {
@@ -247,6 +248,8 @@ function Dashboard() {
             <div className="stats-info">
                 <p>💡 Estás viendo el resumen de la fecha seleccionada.</p>
             </div>
+
+            <AdComponent adSlot="TU_ID_DE_BLOQUE" />
         </div>
     )
 }

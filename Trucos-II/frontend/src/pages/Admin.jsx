@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import API from "../services/api"
+import AdComponent from "../components/AdComponent"
 import "./Admin.css"
 
 function Admin() {
@@ -92,6 +93,8 @@ function Admin() {
                     </div>
                 </div>
             </div>
+
+            <AdComponent adSlot="TU_ID_DE_BLOQUE" />
         </div>
     )
 }

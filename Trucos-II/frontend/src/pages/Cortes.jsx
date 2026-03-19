@@ -1,5 +1,6 @@
 import { useState } from "react"
 import API from "../services/api"
+import AdComponent from "../components/AdComponent"
 import "./Cortes.css"
 
 function Cortes() {
@@ -78,6 +79,8 @@ function Cortes() {
                     Guardar Corte
                 </button>
             </form>
+
+            <AdComponent adSlot="TU_ID_DE_BLOQUE" />
         </div>
     )
 }

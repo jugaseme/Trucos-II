@@ -1,5 +1,6 @@
 import { useState } from "react"
 import API from "../services/api"
+import AdComponent from "../components/AdComponent"
 import "./Login.css"
 
 function Login() {
@@ -51,6 +52,8 @@ function Login() {
                     Entrar al Panel
                 </button>
             </form>
+
+            <AdComponent adSlot="TU_ID_DE_BLOQUE" />
         </div>
     )
 }
