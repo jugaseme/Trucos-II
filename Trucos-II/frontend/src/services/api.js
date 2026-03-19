@@ -15,4 +15,9 @@ API.interceptors.request.use((config) => {
     return Promise.reject(error)
 })
 
+export const crearVale = (monto, descripcion) => API.post("/vales", { monto, descripcion })
+export const obtenerValesAdmin = (inicio, fin) => API.get(`/vales?inicio=${inicio}&fin=${fin}`)
+
+export const obtenerGananciasPeriodo = () => API.get("/cortes/estadisticas/ganancias-periodo")
+
 export default API

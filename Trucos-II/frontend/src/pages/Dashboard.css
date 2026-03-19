@@ -60,6 +60,10 @@
     gap: 1.5rem;
 }
 
+.dashboard-grid + .dashboard-grid {
+    margin-top: 2rem;
+}
+
 .stats-info {
     margin-top: 3rem;
     padding: 1.5rem;
@@ -139,6 +143,7 @@
     display: flex;
     justify-content: space-around;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .comparison-item {
@@ -224,4 +229,21 @@
     font-size: 1.8rem;
     font-weight: 700;
     color: #38bdf8;
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    .dashboard-title {
+        font-size: 2rem;
+    }
+    .date-selector-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .admin-extra-stats {
+        grid-template-columns: 1fr;
+    }
 }

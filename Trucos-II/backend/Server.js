@@ -8,6 +8,7 @@ const connectDB = require("./config/db")
 const usuariosRoutes = require("./routes/usuarios")
 const authRoutes = require("./routes/auth")
 const cortesRoutes = require("./routes/cortes")
+const valesRoutes = require("./routes/vales")
 
 const app = express()
 
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 app.use("/usuarios", usuariosRoutes)
 app.use("/auth", authRoutes)
 app.use("/cortes", cortesRoutes)
+app.use("/vales", valesRoutes)
 
 const PORT = 3001
 

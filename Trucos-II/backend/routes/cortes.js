@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const mongoose = require("mongoose")
 const Corte = require("../models/Corte")
+const Vale = require("../models/Vale")
 const { auth, admin } = require("../middleware/auth")
 
 // REGISTRAR CORTE (Cualquier usuario autenticado - Barbero/Admin)
@@ -147,7 +148,19 @@ router.get("/estadisticas/personal", auth, async (req, res) => {
             }
         ])
 
-        res.json(stats[0] || { totalCortes: 0, misGanancias: 0 })
+        const valesHoy = await Vale.find({
+            barbero: barberoId,
+            fecha: { $gte: inicio, $lte: fin }
+        })
+
+        const totalVales = valesHoy.reduce((acc, vale) => acc + vale.monto, 0)
+        
+        const statRes = stats[0] || { totalCortes: 0, misGanancias: 0 }
+        statRes.misVales = totalVales
+        statRes.vales = valesHoy
+        statRes.misGananciasNeto = statRes.misGanancias - totalVales
+
+        res.json(statRes)
     } catch (error) {
         console.error("Error en /estadisticas/personal:", error)
         res.status(500).json({ error: error.message })
@@ -175,6 +188,65 @@ router.get("/estadisticas/mensual", auth, admin, async (req, res) => {
             }
         ])
         res.json(data)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+})
+
+// Ganancias Periodo (Semanal y Mensual) (Solo Admin)
+router.get("/estadisticas/ganancias-periodo", auth, admin, async (req, res) => {
+    try {
+        // Calcular inicio y fin de esta semana (Lunes a Domingo)
+        const hoy = new Date()
+        hoy.setHours(0, 0, 0, 0)
+        
+        const diaSemana = hoy.getDay() // 0 es Domingo, 1 es Lunes...
+        const diffLunes = diaSemana === 0 ? -6 : 1 - diaSemana // Días a restar para llegar al lunes
+        
+        const inicioSemana = new Date(hoy)
+        inicioSemana.setDate(hoy.getDate() + diffLunes)
+        
+        const finSemana = new Date(inicioSemana)
+        finSemana.setDate(inicioSemana.getDate() + 6)
+        finSemana.setHours(23, 59, 59, 999)
+
+        // Calcular inicio y fin de este mes
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+        const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59, 999)
+
+        const statsSemana = await Corte.aggregate([
+            {
+                $match: {
+                    fecha: { $gte: inicioSemana, $lte: finSemana }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    gananciaTiendaSemana: { $sum: "$gananciaTienda" }
+                }
+            }
+        ])
+
+        const statsMes = await Corte.aggregate([
+            {
+                $match: {
+                    fecha: { $gte: inicioMes, $lte: finMes }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    gananciaTiendaMes: { $sum: "$gananciaTienda" }
+                }
+            }
+        ])
+
+        res.json({
+            semana: statsSemana[0]?.gananciaTiendaSemana || 0,
+            mes: statsMes[0]?.gananciaTiendaMes || 0,
+            rangoSemana: { inicio: inicioSemana, fin: finSemana }
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -260,10 +332,29 @@ router.get("/cierre", auth, admin, async (req, res) => {
             }
         ])
 
+        const valesQuery = await Vale.aggregate([
+            {
+                $match: {
+                    fecha: {
+                        $gte: inicio,
+                        $lte: fin
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalVales: { $sum: "$monto" }
+                }
+            }
+        ])
+        const totalValesDia = valesQuery[0]?.totalVales || 0
+
         res.json({
             resumen: cierre,
             pagos: pagos,
-            barberos: barberosResumen
+            barberos: barberosResumen,
+            totalVales: totalValesDia
         })
     } catch (error) {
         res.status(500).json({ error: error.message })
